@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!-- 
+****************************** 核心配置说明 ******************************
+Properties 是用来定义共用属性的，也就是在其他配置标签中直接使用
+%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %p %C{3}.%M(%F:%L) %m%n 这些东西，都是log4j2内置的信息展示规则，日常开发，这些够用了
+Appenders 白话讲，就是指定不同的输出方式
+Console 就是指定控制台输出
+RollingFile 就是输出到指定文件
+filePattern
+指定回滚的文件名，回滚也就是当前的日志文件不满足Policies和DefaultRolloverStrategy的条件时，重新命名，并且生产新的文件
+TimeBasedTriggeringPolicy的interval=1表示1天
+LevelRangeFilter 就是指定什么等级的日志
+Loggers 顾名思义，就是配置具体需要记录日志的入口（类）
+***************************** 核心配置说明 ******************************
+
+PatternLayout参数说明：
+%c{参数} 或 %logger{参数} ##输出日志名称 
+%C{参数} 或 %class{参数 ##输出类型 %d{参数}{时区te{参数}{时区} ##输出时间 
+%F|%file ##输出文件名 
+highlight{pattern}{style} ##高亮显示 
+%l ##输出错误的完整位置 
+%L ##输出错误行号 
+%m 或 %msg 或 %message ##输出错误信息
+%M 或 %method ##输出方法名 
+%n ##输出换行符 
+%level{参数1}{参数2}{参数3} ##输出日志的级别 %5p是包括分隔符对齐的
+%t 或 %thread ##创建logging事件的线程名
+%20 —— 右对齐，不足20个字符则在信息前面用空格补足，超过20个字符则保留原信息
+%-20 —— 左对齐
+ -->
+<!--日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL --> 
+<!-- status log4j2内部日志级别 -->
+<configuration status="INFO"> 
+	<!-- 全局参数 -->
+	<Properties>
+		<Property name="pattern">[%d{yyyy-MM-dd HH:mm:ss} >> %-5p][THN: %thread]%class%F[%L] - %m%n</Property>
+		<Property name="displayName">bill</Property>
+		<Property name="APP_LOG_ROOT">D://appLog//bill system</Property>
+	</Properties>
+	<Appenders>
+		<Console name="console" target="SYSTEM_OUT" follow="true">
+			<PatternLayout>
+				<pattern>${pattern}</pattern>
+			</PatternLayout>
+		</Console> 
+		<!-- 文件 日志是否在文件末尾追加，由append属性决定，false清空，true追加 -->
+		<File name="error" fileName="${APP_LOG_ROOT}//${displayName}_error.log" append="false"> 
+			<!-- 
+				指定error 级别的日志,onMatch和onMismatch可选的值分别是，ACCEPT, DENY, NEUTRAL。
+				ACCEP和DENY比较好理解就是接受和拒绝的意思，在使用单个过滤器的时候，一般就是使用这两个值。
+				但是在组合过滤器中，如果用接受ACCEPT的话，日志信息就会直接写入日志文件,后续的过滤器不再进行过滤。
+				所以，在组合过滤器中，接受使用NEUTRAL（中立），被第一个过滤器接受的日志信息，会继续用后面的过滤器进行过滤，
+				只有符合所有过滤器条件的日志信息，才会被最终写入日志文件。 
+			-->
+			<ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY" />
+			<PatternLayout>
+				<pattern>${pattern}</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="50 MB" />
+			</Policies>
+		</File> 
+		<!-- 
+			滚动文件，如果filePattern中仅含有整数计数器（即%i），每次rollover时，文件重命名时的计数器将每次加1（初始值为1），若达到max的值，将删除旧的文件。
+			filePattern中yyyy-MM-dd HH最小时间粒度为小时，TimeBasedTriggeringPolicy中interval使用默认值1，将每1小时触发一次rollover。
+			若将filePattern改为filePattern=“logs/app-%d{yyyy-MM-dd HH-mm}-%i.log”，yyyy-MM-dd HH-mm最小时间粒度为分钟，将每1分钟触发一次rollover。
+		 -->
+		<RollingFile name="platformLog" fileName="${APP_LOG_ROOT}//${displayName}_root.log" 
+			filePattern="${APP_LOG_ROOT}//${displayName}_%d{yyyy-MM-dd HH}_%i.log" append="true">
+			<ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="ACCEPT"/>
+			<PatternLayout>
+				<pattern>${pattern}</pattern>
+			</PatternLayout> 
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
+				<!-- 按大小划分 -->
+				<SizeBasedTriggeringPolicy size="50 MB" />
+			</Policies>
+			
+			<!-- 设置最大文件数，默认为7 -->
+			<DefaultRolloverStrategy max="10"/>
+		</RollingFile>
+		
+		<!-- 应用Info级别的日志 -->
+		<RollingFile name="appLog" fileName="${APP_LOG_ROOT}//${displayName}_app.log" 
+			filePattern="${APP_LOG_ROOT}//${displayName}_info_%d{yyyy-MM-dd HH}_%i.log" append="true">
+			<ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="ACCEPT"/>
+			<PatternLayout>
+				<pattern>${pattern}</pattern>
+			</PatternLayout> 
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
+				<SizeBasedTriggeringPolicy size="50 MB" />
+			</Policies>
+			
+			<!-- 设置最大文件数，默认为7 -->
+			<DefaultRolloverStrategy max="10"/>
+		</RollingFile>
+	</Appenders>
+	<Loggers>
+        
+		<Logger name="org.apache" level="WARN"/>
+		<Logger name="org.springframework" level="WARN"/>
+		
+		<Root level="DEBUG">
+			<appender-ref ref="platformLog"/>
+			<appender-ref ref="console"/>
+		</Root>
+		
+		<!-- 服务请求日志 -->
+		<!-- 开启打印SQL -->
+		<Logger name="org.mybatis" level="debug"/>
+        <logger name="com.sinoknots.bill.ui.dao" level="debug"/>
+		<!-- 打印指定包下的日志 -->
+        <logger name="com.sinoknots.bill" level="info">
+        	<!-- 以什么样的方式打印 -->
+            <appender-ref ref="appLog"/>
+        </logger>
+	</Loggers>
+</configuration>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sinoknots.bill.ui.dao.BillDetailDao">
+	<resultMap id="BaseResultMap" type="com.sinoknots.bill.ui.entity.BillDetailPo">
+		<id column="bill_id" jdbcType="VARCHAR" property="billId" />
+		<result column="type_id" jdbcType="VARCHAR" property="typeId" />
+		<result column="amount" jdbcType="BIGINT" property="amount" />
+		<result column="use_type_id" jdbcType="VARCHAR" property="useTypeId" />
+		<result column="bill_desc" jdbcType="VARCHAR" property="billDesc" />
+		<result column="create_time" jdbcType="BIGINT" property="createTime" />
+		<result column="creater_id" jdbcType="VARCHAR" property="createrId" />
+		<result column="creater" jdbcType="VARCHAR" property="creater" />
+		<result column="last_operate_time" jdbcType="BIGINT" property="lastOperateTime" />
+		<result column="last_operater" jdbcType="VARCHAR" property="lastOperater" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+	    bill_id, type_id, amount, use_type_id, bill_desc, create_time, creater_id, creater, last_operate_time, last_operater
+	</sql>
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		delete from tb_bill_detail
+		where bill_id = #{billId,jdbcType=VARCHAR}
+	</delete>
+	
+	<insert id="insert" parameterType="com.sinoknots.bill.ui.entity.BillDetailPo">
+		insert into tb_bill_detail (bill_id, type_id, amount, use_type_id, bill_desc, 
+			create_time, creater_id, creater, last_operate_time, last_operater)
+		values (#{billId,jdbcType=VARCHAR}, #{typeId,jdbcType=VARCHAR}, #{amount,jdbcType=BIGINT},
+			#{useTypeId,jdbcType=VARCHAR}, #{billDesc,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT},
+			#{createrId,jdbcType=VARCHAR}, #{creater,jdbcType=VARCHAR}, #{lastOperateTime,jdbcType=BIGINT},
+			#{lastOperater,jdbcType=VARCHAR})
+	</insert>
+	
+	<update id="updateByPrimaryKey" parameterType="com.sinoknots.bill.ui.entity.BillDetailPo">
+		update tb_bill_detail
+		set type_id = #{typeId,jdbcType=VARCHAR},
+			amount = #{amount,jdbcType=BIGINT},
+			use_type_id = #{useTypeId,jdbcType=VARCHAR},
+			bill_desc = #{billDesc,jdbcType=VARCHAR},
+			create_time = #{createTime,jdbcType=BIGINT},
+			creater_id = #{createrId,jdbcType=VARCHAR},
+			creater = #{creater,jdbcType=VARCHAR},
+			last_operate_time = #{lastOperateTime,jdbcType=BIGINT},
+			last_operater = #{lastOperater,jdbcType=VARCHAR}
+		where bill_id = #{billId,jdbcType=VARCHAR}
+	</update>
+	
+	<select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select <include refid="Base_Column_List" />
+		from tb_bill_detail
+		where bill_id = #{billId,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="selectAll" resultMap="BaseResultMap">
+		select <include refid="Base_Column_List" />
+		from tb_bill_detail
+	</select>
+</mapper>
