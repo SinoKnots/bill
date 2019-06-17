@@ -236,5 +236,12 @@
 			<artifactId>pagehelper-spring-boot-starter</artifactId>
 			<version>1.2.3</version>
 		</dependency>
+
+		<!-- 自定义的工具类 -->
+		<dependency>
+			<groupId>com.sinoknots</groupId>
+			<artifactId>utils</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>
