@@ -111,7 +111,6 @@
 		</pluginManagement>
 	</build>
 
-
 	<dependencies>
 		<!-- 打war包时加入此项,告诉spring-boot tomcat相关jar包用外部的不要打进去 -->
 		<dependency>
